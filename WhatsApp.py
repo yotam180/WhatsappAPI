@@ -17,8 +17,7 @@ class WhatsAppDriver(object):
 
 		if check_auth(driver) == False:
 			if (not load_cert("a.json", driver) or not check_auth(driver)) and manual:
-				while not check_auth(driver):
-					pass
+				wait_login(driver)
 				ls = driver.execute_script("return JSON.stringify(localStorage);")
 				with open(cert_file, "w") as f:
 					f.write(ls)
@@ -77,3 +76,18 @@ def check_auth(driver):
 		avatar, barcode = find_avatar(driver), find_barcode(driver)
 		
 	return barcode == None
+
+"""
+Opens the barcode in a new browser window and waits for the user to scan it
+"""
+def wait_login(driver):
+	print "Waiting for login"
+	login_page = webdriver.Firefox()
+	b = find_barcode(driver)
+	login_page.get(b)
+	print "Opened barcode"
+	while not check_auth(driver):
+		if b != find_barcode(driver):
+			b = find_barcode(driver)
+			login_page.get(b)
+	login_page.close()
