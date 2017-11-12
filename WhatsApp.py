@@ -8,7 +8,7 @@ The main class of the API to conenct to WhatsApp Web
 class WhatsAppDriver(object):
 
 	# Initiates a connection to WhatsApp Web
-	def __init__(self, cert_file, manual = True):
+	def __init__(self, cert_file, manual = True, external = False):
 		self.cert_file = cert_file
 		
 		self.driver = webdriver.Firefox()
@@ -17,7 +17,11 @@ class WhatsAppDriver(object):
 
 		if check_auth(driver) == False:
 			if (not load_cert("a.json", driver) or not check_auth(driver)) and manual:
-				wait_login(driver)
+				if external:
+					wait_login(driver)
+				else:
+					while not check_auth(driver):
+						pass
 				ls = driver.execute_script("return JSON.stringify(localStorage);")
 				with open(cert_file, "w") as f:
 					f.write(ls)
@@ -77,17 +81,30 @@ def check_auth(driver):
 		
 	return barcode == None
 
+def barcode_html(url, driver):
+	try:
+		with open("barcode.html") as f:
+			html = f.read().replace("{0}", url)
+		driver.execute_script("document.body.innerHTML = " + dumps(html) + ";");
+	except:
+		return
+	
 """
 Opens the barcode in a new browser window and waits for the user to scan it
 """
 def wait_login(driver):
 	print "Waiting for login"
 	login_page = webdriver.Firefox()
+	login_page.get("data:text/html;charset=utf-8," + "<html></html>")
+	
 	b = find_barcode(driver)
-	login_page.get(b)
+	barcode_html(b, login_page)
+	
 	print "Opened barcode"
+	
 	while not check_auth(driver):
 		if b != find_barcode(driver):
 			b = find_barcode(driver)
-			login_page.get(b)
+			barcode_html(b, login_page)
+			
 	login_page.close()
