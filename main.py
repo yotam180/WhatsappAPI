@@ -1,3 +1,4 @@
-from WhatsApp import *
+from WhatsApp import WhatsAppDriver
 
-success, driver = init("cert.json")
+whatsapp = WhatsAppDriver("a.json", manual=False)
+print whatsapp.is_connected
