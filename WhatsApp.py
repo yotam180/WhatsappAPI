@@ -2,7 +2,6 @@ from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from json import loads, dumps
 
-
 def load_cert(cert_file, driver):
 
 	try:
