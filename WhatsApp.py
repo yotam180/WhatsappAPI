@@ -8,10 +8,13 @@ The main class of the API to conenct to WhatsApp Web
 class WhatsAppDriver(object):
 
 	# Initiates a connection to WhatsApp Web
-	def __init__(self, cert_file, manual = True, external = False):
+	def __init__(self, cert_file, driver = None, manual = True, external = False):
 		self.cert_file = cert_file
 		
-		self.driver = webdriver.Firefox()
+		if driver != None:
+			self.driver = driver
+		else:
+			self.driver = webdriver.Firefox()
 		driver = self.driver
 		driver.get("https://web.whatsapp.com")
 
@@ -26,7 +29,21 @@ class WhatsAppDriver(object):
 				with open(cert_file, "w") as f:
 					f.write(ls)
 		
+		with open("embedded.js") as f:
+			driver.execute_script(f.read())
 		self.is_connected = check_auth(driver)
+		
+	def send_message(self, number, message):
+		return self.driver.execute_script("return sendMessageToNumber(" + dumps(number) + ", " + dumps(message) + ");")
+		
+	def get_contact_info(self, number):
+		return loads(self.driver.execute_script("return getContactInfo(" + dumps(number) + ");"))
+	
+	def find_chats(self, title):
+		return loads(self.driver.execute_script("return getChats(" + dumps(title) + ");"))
+	
+	def close(self):
+		self.driver.close()
 		
 """
 Loads a localStorage object from file and embeds it into a WhatsApp web. Then refreshes the web session
