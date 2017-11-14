@@ -1,3 +1,122 @@
+(function() {
+	
+	window.Core = {
+	
+		group: function(_id) {
+			let result = null;
+			Store.GroupMetadata.models.forEach(x => {
+				if (x.hasOwnProperty("__x_id") && x.__x_id == _id) {
+					result = x;
+				}
+			});
+			return result;
+		},
+		
+		contact: function(_id) {
+			let result = null;
+			Store.Contact.models.forEach(x => {
+				if (x.hasOwnProperty("__x_id") && x.__x_id == _id) {
+					result = x;
+				}
+			});
+			return result;
+		},
+		
+		chat: function(_id) {
+			let result = null;
+			Store.Chat.models.forEach(x => {
+				if (x.hasOwnProperty("__x_id") && x.__x_id == _id) {
+					result = x;
+				}
+			});
+			return result;
+		},
+		
+		find: function(collection, predicate) {
+			let result = null;
+			collection.forEach(x => {
+				if (predicate(x)) {
+					result = x;
+				}
+			});
+			return result;
+		},
+		
+		error: function(err, callback) {
+			setTimeout(x => { callback({error: err}); }, 1);
+		}
+		
+	};
+	
+	window.API = {
+		
+		Error: {
+			OK: true,
+			USER_NOT_FOUND: "The specified user ID was not found",
+			CHAT_NOT_FOUND: "The specified chat ID was not found",
+			GROUP_NOT_FOUND: "The specified group metadata ID was not found",
+			USER_NOT_IN_GROUP: "The specified user is not a member of the required group"
+		},
+		
+		findContactId: function(phone_number) {
+			var result = null;
+			Store.Contact.models.forEach(x => {
+				if (x.hasOwnProperty("__x_id") && (x.__x_id.match(/\d+/g) || []).join("") == phone_number) {
+					result = x.__x_id;
+				}
+			});
+			return result || null;
+		},
+		
+		findChatIds: function(title) {
+			var result = [];
+			Store.Chat.models.forEach(x => {
+				if (x.hasOwnProperty("__x_formattedTitle") && ~(x.__x_formattedTitle.indexOf(title))) {
+					result.push(x.__x_id);
+				}
+			});
+			return result;
+		},
+		
+		addUserToGroup: function(user_id, group_id, callback) {
+			var group = Core.group(group_id);
+			var user = Core.contact(user_id);
+			
+			if (group == null) {
+				Core.error(API.Error.GROUP_NOT_FOUND, callback);
+				return;
+			}
+			if (user == null) {
+				Core.error(API.Error.USER_NOT_FOUND, callback);
+				return;
+			}
+			
+			group.participants.addParticipant(user).then(callback);
+		},
+		
+		removeUserFromGroup: function(user_id, group_id, callback) {
+			var group = Core.group(group_id);
+			if (group == null) {
+				Core.error(API.Error.GROUP_NOT_FOUND, callback);
+				return;
+			}
+			
+			var user = Core.find(group.participants, x => x.hasOwnProperty("__x_id") && x.__x_id == user_id);
+			if (user == null) {
+				Core.error(API.Error.USER_NOT_IN_GROUP, callback);
+				return;
+			}
+			
+			group.participants.removeParticipant(user).then(callback);
+		}
+		
+	};
+	
+})();
+
+
+// Not used anymore. When all transported to the new API, will be deleted
+/* vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 window.WhatsAPI = {
 
 	getGroupMetadata: function(_id) {
@@ -84,3 +203,5 @@ window.WhatsAPI = {
 	}
 
 }
+
+*/
