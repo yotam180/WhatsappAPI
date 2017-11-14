@@ -1,7 +1,13 @@
 (function() {
 	
+	/*
+	The core scripts of the API. Currently is public through `window` but will be hidden in production mode.
+	*/
 	window.Core = {
-	
+		
+		/*
+		Returns a WhatsApp GroupMetadata object from a given group id.
+		*/
 		group: function(_id) {
 			let result = null;
 			Store.GroupMetadata.models.forEach(x => {
@@ -12,6 +18,9 @@
 			return result;
 		},
 		
+		/*
+		Returns a WhatsApp Contact object from a given contact id.
+		*/
 		contact: function(_id) {
 			let result = null;
 			Store.Contact.models.forEach(x => {
@@ -22,6 +31,9 @@
 			return result;
 		},
 		
+		/*
+		Returns a WhatsApp Chat object from a given chat id.
+		*/
 		chat: function(_id) {
 			let result = null;
 			Store.Chat.models.forEach(x => {
@@ -32,6 +44,9 @@
 			return result;
 		},
 		
+		/*
+		Returns the element of a collection that satisfies a predicate condition.
+		*/
 		find: function(collection, predicate) {
 			let result = null;
 			collection.forEach(x => {
@@ -42,16 +57,28 @@
 			return result;
 		},
 		
+		/*
+		Calls a callback with an error object.
+		*/
 		error: function(err, callback) {
 			setTimeout(x => { (callback || Core.nop)({error: err}); }, 1);
 		},
 		
+		/*
+		Does nothing.
+		*/
 		nop: function() {}
 		
 	};
 	
+	/*
+	This is the API, which contains functions, literals, constants and utilities to integrate with WhatsApp Web version.
+	*/
 	window.API = {
 		
+		/*
+		Exception constants.
+		*/
 		Error: {
 			OK: true,
 			USER_NOT_FOUND: "The specified user ID was not found",
@@ -60,6 +87,10 @@
 			USER_NOT_IN_GROUP: "The specified user is not a member of the required group"
 		},
 		
+		/*
+		Returns the contact ID from a given phone number.
+		Only digits in the phone number. Example: "972557267388" and not "(+972) 055-726-7388"
+		*/
 		findContactId: function(phone_number) {
 			var result = null;
 			Store.Contact.models.forEach(x => {
@@ -70,6 +101,10 @@
 			return result || null;
 		},
 		
+		/*
+		Returns an array of chat ID's that correspond to chats with the parameter in the title.
+		For example, calling it with title='John' may return the ID's of the chats: 'John Smith', 'John from the cafeteria', and 'Johnna\'s birthday party 2016'
+		*/
 		findChatIds: function(title) {
 			var result = [];
 			Store.Chat.models.forEach(x => {
@@ -80,6 +115,13 @@
 			return result;
 		},
 		
+		/*
+		Adds a user to a group.
+		Parameters:
+			user_id - the ID of the user (NOT the phone number)
+			group_id - the ID of the group
+			callback - to be invoked after the operation finishes
+		*/
 		addUserToGroup: function(user_id, group_id, callback) {
 			var group = Core.group(group_id);
 			var user = Core.contact(user_id);
@@ -96,6 +138,13 @@
 			group.participants.addParticipant(user).then(callback);
 		},
 		
+		/*
+		Removes a user from a group.
+		Parameters:
+			user_id - the ID of the user (NOT the phone number)
+			group_id - the ID of the group
+			callback - to be invoked after the operation finishes
+		*/
 		removeUserFromGroup: function(user_id, group_id, callback) {
 			var group = Core.group(group_id);
 			if (group == null) {
@@ -112,6 +161,13 @@
 			group.participants.removeParticipant(user).then(callback);
 		},
 		
+		/*
+		Sets a chat's archived status
+		Parameters:
+			chat_id - the ID of the conversation
+			archive_status - true for archiving, false for unarchiving.
+			callback - to be invoked after the operation finishes
+		*/
 		setChatArchiveStatus: function(chat_id, archive_status, callback) {
 			var chat = Core.chat(chat_id);
 			if (chat == null) {
@@ -124,6 +180,14 @@
 			});
 		},
 		
+		/*
+		Gets the archive status of a chat
+		Parameters:
+			chat_id - the ID of the conversation
+		Return value:
+			bool - true if archived, false if not archived.
+			null - if chat was not found
+		*/
 		getChatArchiveStatus: function(chat_id) {
 			var chat = Core.chat(chat_id);
 			if (chat == null) {
