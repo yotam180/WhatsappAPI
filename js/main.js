@@ -102,7 +102,7 @@
 			{
 				predicate: msg => msg.__x_isNotification && msg.__x_eventType == "i",
 				handler: function(msg) {
-					var is_join = !!Core.find(Core.group(msg.chat.__x_id).participants, x => x.__x_id == msg.recipients[0]);
+					var is_join = !!Core.find(Core.group(msg.chat.__x_id).participants, x => x.__x_id == msg.recipients[0]); // If anyone has a better way to implement this one, please help!
 					var object = msg.__x_recipients[0];
 					var subject = msg.__x_sender;
 					var chat = msg.chat.__x_id;
@@ -314,6 +314,25 @@
 			}
 			
 			group.revokeGroupInvite().then(function(e) {
+				(callback || Core.nop)({status: e});
+			});
+		},
+		
+		/*
+		Sets a user's blocked status
+		Parameters:
+			user_id - the ID of the user to block/unblock
+			blocked_status - true - blocked, false - unblocked
+			callback - to be invoked after the operation completes
+		*/
+		setBlockedStatus: function(user_id, blocked_status, callback) {
+			var user = Core.contact(user_id);
+			if (user == null) {
+				Core.error(API.Error.USER_NOT_FOUND, callback);
+				return;
+			}
+			
+			user.setBlock(blocked_status).then(function(e) {
 				(callback || Core.nop)({status: e});
 			});
 		}
