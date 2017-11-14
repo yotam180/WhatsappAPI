@@ -195,6 +195,41 @@
 			}
 			
 			return chat.archive;
+		},
+		
+		/*
+		Gets the invite link for a group.
+		Parameters:
+			group_id - the ID of the group
+		Return value:
+			string - the invite link
+			null - if the group was not found
+		*/
+		getGroupInviteLink: function(group_id) {
+			var group = Core.group(group_id);
+			if (group == null) {
+				return null;
+			}
+			
+			return group.groupInviteLink;
+		},
+		
+		/*
+		Revokes a group's invite link.
+		Parameters:
+			group_id - the ID of the group
+			callback - to be invoked after the operation completes
+		*/
+		revokeGroupInviteLink: function(group_id, callback) {
+			var group = Core.group(group_id);
+			if (group == null) {
+				Core.error(Core.Error.GROUP_NOT_FOUND, callback);
+				return;
+			}
+			
+			group.revokeGroupInvite().then(function(e) {
+				(callback || Core.nop)({status: e});
+			});
 		}
 		
 	};
