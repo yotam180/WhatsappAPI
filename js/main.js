@@ -120,9 +120,9 @@
 			User join / leave group.
 			*/
 			{
-				predicate: msg => msg.__x_isNotification && msg.__x_eventType == "i",
+				predicate: msg => msg.__x_isNotification && msg.__x_eventType == "i" && msg.__x_type == "gp2",
 				handler: function(msg) {
-					var is_join = !!Core.find(Core.chat(msg.chat.__x_id).isGroup && Core.group(msg.chat.__x_id).participants, x => x.__x_id == msg.recipients[0]); // If anyone has a better way to implement this one, please help!
+					var is_join = Core.chat(msg.chat.__x_id).isGroup && !!Core.find(Core.group(msg.chat.__x_id).participants, x => msg.recipients && x.__x_id == msg.recipients[0]); // If anyone has a better way to implement this one, please help!
 					var object = msg.__x_recipients[0];
 					var subject = msg.__x_sender;
 					var chat = msg.chat.__x_id;
@@ -400,7 +400,7 @@
 			chat.sendMessage(message_text).then(function(e) {
 				(callback || Core.nop)({status: e});
 			});
-		}
+		},
 		
 	};
 	
