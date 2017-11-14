@@ -402,6 +402,25 @@
 			});
 		},
 		
+		/*
+		Creates a new group.
+		Parameters:
+			group_subject - the title of the newly created group
+			participants - an array of ids of users to add to the group
+			callback - to be invoked after the operation completes
+		
+		Needs further testing
+		*/
+		createGroup: function(group_subject, participants, callback) {
+			var p = [];
+			for (var x = 0; x < participants.length; x++)
+			{
+				p.push(Core.contact(participants[x]));
+			}
+			
+			Store.Chat.createGroup(group_subject, null, null, p, undefined).then(callback);
+		}
+		
 	};
 	
 	API.listener.listen();
