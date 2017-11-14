@@ -8,7 +8,7 @@ The main class of the API to conenct to WhatsApp Web
 class WhatsAppDriver(object):
 
 	# Initiates a connection to WhatsApp Web
-	def __init__(self, cert_file, driver = None, manual = True, external = False):
+	def __init__(self, cert_file, driver = None, manual = True):
 		self.cert_file = cert_file
 		
 		if driver != None:
@@ -20,11 +20,8 @@ class WhatsAppDriver(object):
 
 		if check_auth(driver) == False:
 			if (not load_cert("a.json", driver) or not check_auth(driver)) and manual:
-				if external:
-					wait_login(driver)
-				else:
-					while not check_auth(driver):
-						pass
+				while not check_auth(driver):
+					pass
 				ls = driver.execute_script("return JSON.stringify(localStorage);")
 				with open(cert_file, "w") as f:
 					f.write(ls)
