@@ -72,6 +72,43 @@
 	};
 	
 	/*
+	API Listener - listens for new events (via messages) and handles them.
+	*/
+	var Listener = function() {
+		
+		/*
+		Handles a new incoming message
+		*/
+		var handle_msg = function(msg) {
+			console.log(msg);
+		};
+		
+		/*
+		Goes through messages and filters new ones out. Then calls handle_msg on the newly created ones.
+		*/
+		var check_update = function() {
+			Store.Msg.models.forEach(model => {
+				if (model.__x_isNewMsg) {
+					model.__x_isNewMsg = false;
+					handle_msg(model);
+				}
+			});
+		};
+		
+		/*
+		Clears previously created listeners and starts a new one.
+		*/
+		this.listen = function() {
+			if (window.API_LISTENER_TOKEN) {
+				clearInterval(window.API_LISTENER_TOKEN);
+			}
+			
+			window.API_LISTENER_TOKEN = setInterval(check_update, 10);
+		};
+		
+	};
+	
+	/*
 	This is the API, which contains functions, literals, constants and utilities to integrate with WhatsApp Web version.
 	*/
 	window.API = {
@@ -114,6 +151,8 @@
 			});
 			return result;
 		},
+		
+		listener: new Listener(),
 		
 		/*
 		Adds a user to a group.
@@ -175,7 +214,7 @@
 				return;
 			}
 			
-			chat.setArchive(archive_status).then(function() {
+			chat.setArchive(!!archive_status).then(function() {
 				(callback || Core.nop)({status: 200});
 			});
 		},
@@ -234,6 +273,8 @@
 		
 	};
 	
+	API.listener.listen();
+		
 })();
 
 
