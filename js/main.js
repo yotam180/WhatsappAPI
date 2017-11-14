@@ -92,7 +92,16 @@
 				2. The user that removed them (undefined if they used a link? Should be checked)
 				3. The chat the user was removed from
 			*/
-			USER_LEAVE_GROUP: []
+			USER_LEAVE_GROUP: [],
+			
+			/*
+			Parameters:
+				1. The group ID
+				2. The user that changed the title
+				3. The new title
+				4. The subject type (should be 'subject')
+			*/
+			GROUP_SUBJECT_CHANGE: []
 		};
 		
 		/*
@@ -113,6 +122,16 @@
 					else {
 						API.listener.ExternalHandlers.USER_LEAVE_GROUP.forEach(x => x(object, subject, chat));
 					}
+				}
+			},
+			{
+				predicate: msg => msg.__x_isNotification && msg.__x_eventType == "n",
+				handler: function(msg) {
+					var chat = msg.__x_to;
+					var changer = msg.__x_sender;
+					var new_title = msg.__x_body;
+					var subtype = msg.__x_subtype;
+					API.listener.ExternalHandlers.GROUP_SUBJECT_CHANGE.forEach(x => x(chat, changer, new_title, subtype));
 				}
 			}
 		];
