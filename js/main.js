@@ -101,17 +101,28 @@
 				3. The new title
 				4. The subject type (should be 'subject')
 			*/
-			GROUP_SUBJECT_CHANGE: []
+			GROUP_SUBJECT_CHANGE: [],
+			
+			/*
+			Parameters:
+				1. Sender of the message
+				2. Chat the message was sent at
+				3. Message ID
+			*/
+			MESSAGE_RECEIVED: []
 		};
 		
 		/*
 		Handlers for different message types
 		*/
 		var handlers = [
+			/*
+			User join / leave group.
+			*/
 			{
 				predicate: msg => msg.__x_isNotification && msg.__x_eventType == "i",
 				handler: function(msg) {
-					var is_join = !!Core.find(Core.group(msg.chat.__x_id).participants, x => x.__x_id == msg.recipients[0]); // If anyone has a better way to implement this one, please help!
+					var is_join = !!Core.find(Core.chat(msg.chat.__x_id).isGroup && Core.group(msg.chat.__x_id).participants, x => x.__x_id == msg.recipients[0]); // If anyone has a better way to implement this one, please help!
 					var object = msg.__x_recipients[0];
 					var subject = msg.__x_sender;
 					var chat = msg.chat.__x_id;
@@ -124,6 +135,9 @@
 					}
 				}
 			},
+			/*
+			Group subject change.
+			*/
 			{
 				predicate: msg => msg.__x_isNotification && msg.__x_eventType == "n",
 				handler: function(msg) {
@@ -132,6 +146,19 @@
 					var new_title = msg.__x_body;
 					var subtype = msg.__x_subtype;
 					API.listener.ExternalHandlers.GROUP_SUBJECT_CHANGE.forEach(x => x(chat, changer, new_title, subtype));
+				}
+			},
+			/*
+			Message received
+			*/
+			{
+				predicate: msg => msg.__x_isUserCreatedType && !msg.__x_isNotification && !msg.__x_isSentByMe,
+				handler: function(msg) {
+					var sender = msg.__x_sender;
+					var chat = msg.__x_from;
+					var message_id = msg.__x_id._serialized;
+					console.log(msg);
+					API.listener.ExternalHandlers.MESSAGE_RECEIVED.forEach(x => x(sender, chat, message_id));
 				}
 			}
 		];
