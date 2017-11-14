@@ -43,8 +43,10 @@
 		},
 		
 		error: function(err, callback) {
-			setTimeout(x => { callback({error: err}); }, 1);
-		}
+			setTimeout(x => { (callback || Core.nop)({error: err}); }, 1);
+		},
+		
+		nop: function() {}
 		
 	};
 	
@@ -103,11 +105,32 @@
 			
 			var user = Core.find(group.participants, x => x.hasOwnProperty("__x_id") && x.__x_id == user_id);
 			if (user == null) {
-				Core.error(API.Error.USER_NOT_IN_GROUP, callback);
+				Core.error(API.Error.USER_NOT_IN_GROUP, callback || Core.nop);
 				return;
 			}
 			
 			group.participants.removeParticipant(user).then(callback);
+		},
+		
+		setChatArchiveStatus: function(chat_id, archive_status, callback) {
+			var chat = Core.chat(chat_id);
+			if (chat == null) {
+				Core.error(API.Error.CHAT_NOT_FOUND, callback);
+				return;
+			}
+			
+			chat.setArchive(archive_status).then(function() {
+				(callback || Core.nop)({status: 200});
+			});
+		},
+		
+		getChatArchiveStatus: function(chat_id) {
+			var chat = Core.chat(chat_id);
+			if (chat == null) {
+				return null;
+			}
+			
+			return chat.archive;
 		}
 		
 	};
