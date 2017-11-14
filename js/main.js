@@ -335,6 +335,25 @@
 			user.setBlock(blocked_status).then(function(e) {
 				(callback || Core.nop)({status: e});
 			});
+		},
+		
+		/*
+		Sends a text message in a given chat.
+		Parameters:
+			chat_id - the chat to send a message to.
+			message_text - the plain text of the message.
+			callback - to be invoked after the operation completes
+		*/
+		sendTextMessage: function(chat_id, message_text, callback) {
+			var chat = Core.chat(chat_id);
+			if (chat == null) {
+				Core.error(API.Error.CHAT_NOT_FOUND, callback)
+				return;
+			}
+			
+			chat.sendMessage(message_text).then(function(e) {
+				(callback || Core.nop)({status: e});
+			});
 		}
 		
 	};
