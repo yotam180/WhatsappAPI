@@ -76,11 +76,58 @@
 	*/
 	var Listener = function() {
 		
+		this.ExternalHandlers = {
+			
+			/*
+			Parameters:
+				1. The user that joined
+				2. The user that added them (undefined if they used a link? Should be checked)
+				3. The chat the user was added to
+			*/
+			USER_JOIN_GROUP: [],
+			
+			/*
+			Parameters:
+				1. The user that was removed
+				2. The user that removed them (undefined if they used a link? Should be checked)
+				3. The chat the user was removed from
+			*/
+			USER_LEAVE_GROUP: []
+		};
+		
+		/*
+		Handlers for different message types
+		*/
+		var handlers = [
+			{
+				predicate: msg => msg.__x_isNotification && msg.__x_eventType == "i",
+				handler: function(msg) {
+					var is_join = !!Core.find(Core.group(msg.chat.__x_id).participants, x => x.__x_id == msg.recipients[0]);
+					var object = msg.__x_recipients[0];
+					var subject = msg.__x_sender;
+					var chat = msg.chat.__x_id;
+					
+					if (is_join) {
+						API.listener.ExternalHandlers.USER_JOIN_GROUP.forEach(x => x(object, subject, chat));
+					}
+					else {
+						API.listener.ExternalHandlers.USER_LEAVE_GROUP.forEach(x => x(object, subject, chat));
+					}
+				}
+			}
+		];
+		
 		/*
 		Handles a new incoming message
 		*/
 		var handle_msg = function(msg) {
-			console.log(msg);
+			for (var i = 0; i < handlers.length; i++) {
+				if (handlers[i].predicate(msg)) {
+					handlers[i].handler(msg);
+					return;
+				}
+			}
+			console.log("No suitable handlers were found for ", msg);
 		};
 		
 		/*
