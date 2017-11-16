@@ -499,6 +499,42 @@
 		},
 		
 		/*
+		
+		*/
+		sendTyping: function(chat_id) {
+            var chat = Core.chat(chat_id);
+            if (chat == null) {
+                return API.Error.CHAT_NOT_FOUND;
+            }
+            
+            chat.markComposing();
+		},
+		
+		/*
+		
+		*/
+		sendRecording: function(chat_id) {
+            var chat = Core.chat(chat_id);
+            if (chat == null) {
+                return API.Error.CHAT_NOT_FOUND;
+            }
+            
+            chat.markRecording();
+		},
+		
+		/*
+		
+		*/
+		sendStopRecording: function(chat_id) {
+            var chat = Core.chat(chat_id);
+            if (chat == null) {
+                return API.Error.CHAT_NOT_FOUND;
+            }
+            
+            chat.markPaused();
+		},
+		
+		/*
 		Emoji constants
 		*/
 		Emoji: {
