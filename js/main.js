@@ -535,6 +535,18 @@
 		},
 		
 		/*
+		Minimizes a message object to a JSON convertable object for sending over network (smaller size than a huge Msg object)
+		Parameters:
+			msg_object - the message object to convert to JSON compatible type
+		*/
+		parseMsgObject: function(msg_object) {
+			var m = msg_object.all;
+			m.chat = m.chat.all;
+			delete m.msgChunk;
+			return m;
+		}
+		
+		/*
 		Emoji constants
 		*/
 		Emoji: {
