@@ -563,6 +563,17 @@
 			m.chat = m.chat.all;
 			delete m.msgChunk;
 			return m;
+		},
+		
+		ready: function() {
+			return new Promise(function(success, error) {
+				var i = setInterval(function() {
+					if (document.getElementsByClassName("avatar-image").length > 0) {
+						clearInterval(i);
+						success();
+					}
+				}, 10);
+			});
 		}
 		
 	};
