@@ -499,7 +499,8 @@
 		},
 		
 		/*
-		
+		    Send the other side "<you> is typing..."
+			chat_id - the chat id
 		*/
 		sendTyping: function(chat_id) {
             var chat = Core.chat(chat_id);
@@ -511,7 +512,8 @@
 		},
 		
 		/*
-		
+		    Send the other side "<you> is recording audio..."
+			chat_id - the chat id
 		*/
 		sendRecording: function(chat_id) {
             var chat = Core.chat(chat_id);
@@ -523,7 +525,8 @@
 		},
 		
 		/*
-		
+		    Hides the "<you> is recording audio..." to the other side
+			chat_id - the chat id
 		*/
 		sendStopRecording: function(chat_id) {
             var chat = Core.chat(chat_id);
