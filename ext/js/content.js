@@ -2,8 +2,8 @@
 	
 	// For receiving messages from WhatsApp
 	var messageFromClient = function(data) {
-		console.log("Received message from client ", data);
-		
+		//console.log("Message from client to content: ", data);
+		chrome.runtime.sendMessage(data);
 	};
 	
 	// Constructing a new messaging DOM element
@@ -23,16 +23,24 @@
 		document.getElementById("whatsapp_messaging").dispatchEvent(new CustomEvent("content_message", { "detail": data }));
 	};
 	
+	// Listening for messages from background script
+	chrome.runtime.onMessage.addListener(function(request, sender) {
+		if (!sender.tab) {
+			// Message from background script
+			//console.log("Message from background to content: ", request);
+			clientMessage(request);
+		}
+	});
 	
 	// Loading the API
 	var api = document.createElement("script");
+	api.onload = function() {
+		// Loading the WhatsBot script
+		var el = document.createElement("script");
+		el.src = chrome.extension.getURL("js/whatsbot.js");
+		(document.head || document.documentElement).appendChild(el);
+	};
 	api.src = chrome.extension.getURL("js/api.min.js");
 	(document.head || document.documentElement).appendChild(api);
-	
-	// Loading the WhatsBot script
-	var el = document.createElement("script");
-	el.src = chrome.extension.getURL("js/whatsbot.js");
-	(document.head || document.documentElement).appendChild(el);
-	
-	
+		
 })();
