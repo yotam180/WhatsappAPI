@@ -499,7 +499,7 @@
 		},
 		
 		/*
-		    send the other side "<you> is typing..."
+		    Send the other side "<you> is typing..."
 			chat_id - the chat id
 		*/
 		sendTyping: function(chat_id) {
@@ -512,7 +512,7 @@
 		},
 		
 		/*
-		    send the other side "<you> is recording audio..."
+		    Send the other side "<you> is recording audio..."
 			chat_id - the chat id
 		*/
 		sendRecording: function(chat_id) {
@@ -525,7 +525,7 @@
 		},
 		
 		/*
-		    hides the "<you> is recording audio..." to the other side
+		    Hides the "<you> is recording audio..." to the other side
 			chat_id - the chat id
 		*/
 		sendStopRecording: function(chat_id) {
