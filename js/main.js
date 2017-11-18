@@ -1,4 +1,4 @@
-(function() {
+﻿(function() {
 	
 	/*
 	The core scripts of the API. Currently is public through `window` but will be hidden in production mode.
@@ -38,6 +38,19 @@
 			let result = null;
 			Store.Chat.models.forEach(x => {
 				if (x.hasOwnProperty("__x_id") && x.__x_id == _id) {
+					result = x;
+				}
+			});
+			return result;
+		},
+		
+		/*
+		Returns a WhatsApp Msg object from a given serialized messsage id
+		*/
+		msg: function(_id) {
+			let result = null;
+			Store.Msg.models.forEach(x => {
+				if (x.hasOwnProperty("__x_id") && x.__x_id._serialized == _id) {
 					result = x;
 				}
 			});
@@ -107,7 +120,7 @@
 			Parameters:
 				1. Sender of the message
 				2. Chat the message was sent at
-				3. Message ID
+				3. Parsed Msg object
 			*/
 			MESSAGE_RECEIVED: []
 		};
@@ -156,9 +169,9 @@
 				handler: function(msg) {
 					var sender = msg.__x_sender;
 					var chat = msg.__x_from;
-					var message_id = msg.__x_id._serialized;
+					var message = msg.__x_id._serialized;
 					console.log(msg);
-					API.listener.ExternalHandlers.MESSAGE_RECEIVED.forEach(x => x(sender, chat, message_id));
+					API.listener.ExternalHandlers.MESSAGE_RECEIVED.forEach(x => x(sender, chat, API.parseMsgObject(msg)));
 				}
 			}
 		];
@@ -544,10 +557,13 @@
 		*/
 		parseMsgObject: function(msg_object) {
 			var m = msg_object.all;
+			if (msg_object["__x__quotedMsgObj"]) {
+				m.quotedMsg = API.parseMsgObject(Core.msg(msg_object.__x__quotedMsgObj.__x_id._serialized));
+			}
 			m.chat = m.chat.all;
 			delete m.msgChunk;
 			return m;
-		}
+		},
 		
 		/*
 		Emoji constants
