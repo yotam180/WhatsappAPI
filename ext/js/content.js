@@ -2,7 +2,6 @@
 	
 	// For receiving messages from WhatsApp
 	var messageFromClient = function(data) {
-		//console.log("Message from client to content: ", data);
 		chrome.runtime.sendMessage(data);
 	};
 	
@@ -27,7 +26,6 @@
 	chrome.runtime.onMessage.addListener(function(request, sender) {
 		if (!sender.tab) {
 			// Message from background script
-			//console.log("Message from background to content: ", request);
 			clientMessage(request);
 		}
 	});
