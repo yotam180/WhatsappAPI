@@ -512,42 +512,42 @@
 		},
 		
 		/*
-		    Send the other side "<you> is typing..."
+			Send the other side "<you> is typing..."
 			chat_id - the chat id
 		*/
 		sendTyping: function(chat_id) {
-            var chat = Core.chat(chat_id);
-            if (chat == null) {
-                return API.Error.CHAT_NOT_FOUND;
-            }
-            
-            chat.markComposing();
+			var chat = Core.chat(chat_id);
+			if (chat == null) {
+				return API.Error.CHAT_NOT_FOUND;
+			}
+			
+			chat.markComposing();
 		},
 		
 		/*
-		    Send the other side "<you> is recording audio..."
+			Send the other side "<you> is recording audio..."
 			chat_id - the chat id
 		*/
 		sendRecording: function(chat_id) {
-            var chat = Core.chat(chat_id);
-            if (chat == null) {
-                return API.Error.CHAT_NOT_FOUND;
-            }
-            
-            chat.markRecording();
+			var chat = Core.chat(chat_id);
+			if (chat == null) {
+				return API.Error.CHAT_NOT_FOUND;
+			}
+			
+			chat.markRecording();
 		},
 		
 		/*
-		    Hides the "<you> is recording audio..." to the other side
+			Hides the "<you> is recording audio..." to the other side
 			chat_id - the chat id
 		*/
 		sendStopRecording: function(chat_id) {
-            var chat = Core.chat(chat_id);
-            if (chat == null) {
-                return API.Error.CHAT_NOT_FOUND;
-            }
-            
-            chat.markPaused();
+			var chat = Core.chat(chat_id);
+			if (chat == null) {
+				return API.Error.CHAT_NOT_FOUND;
+			}
+			
+			chat.markPaused();
 		},
 		
 		/*
