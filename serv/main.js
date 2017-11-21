@@ -9,5 +9,11 @@ wss.on("connection", function(ws) {
 	});
 	
 	ws.send(JSON.stringify({type: "connection", status: "connected"}));
+	console.log("connected");
+	
+	ws.on("close", function() {
+		console.log("Connection closed");
+	});
 });
 
+console.log("A");

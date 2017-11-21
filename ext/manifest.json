@@ -14,7 +14,7 @@
 	},
 	
 	"background": {
-		"persistent": false,
+		"persistent": true,
 		"scripts": ["background.js"]
 	},
 	
@@ -23,6 +23,7 @@
 	"permissions": [
 		"activeTab",
 		"webNavigation", 
+		"webRequest",
 		"tabs",
 		"https://web.whatsapp.com/*"
 	],
