@@ -7,6 +7,15 @@
 	var handlers = {
 		"update_text": function(d) {
 			document.getElementById("text_msg").innerHTML = d.text;
+		},
+		"cmd": function(d) {
+			({
+				"send_message_to_num": function(d) {
+					API.sendTextMessage(API.findContactId(d.args.number), d.args.message, function(d) {
+						serverMessage({type: "response", msg_id: d.msg_id, args: d});
+					});
+				}
+			})[d.cmd](d);
 		}
 	};
 	

@@ -26,7 +26,10 @@ var handlers = {
 		clientMessage({type: "update_text", text: "Trying to connect to WhatsBot&trade; host"});
 		ws = new WebSocket("ws://localhost:8054/");
 		ws.onmessage = function(d) {
-			
+			var m = JSON.parse(d.data);
+			if (bot_working && m.type == "cmd") {
+				clientMessage(m);
+			}
 		};
 		ws.onopen = function() {
 			clientMessage({type: "update_text", text: "Connected to WhatsBot&trade; host"});
@@ -41,6 +44,9 @@ var handlers = {
 	},
 	"stop": function(msg) {
 		bot_working = false;
+	},
+	"response": function(msg) {
+		ws.send(JSON.stringify(msg));
 	}
 }
 
