@@ -4,7 +4,7 @@
 
 Will be formatted as a JSON encoded string
 
-```json
+```javascript
 {
     type: "cmd",
     cmd: "<one of the available commands>",
@@ -42,7 +42,7 @@ Will be formatted as a JSON encoded string
 
 Will be formatted as a JSON encoded string
 
-```json
+```javascript
 {
     type: "response",
     msg_id: "<string identifier of the original message>",
