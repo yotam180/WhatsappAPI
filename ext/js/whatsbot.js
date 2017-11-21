@@ -1,13 +1,28 @@
 (function() {
 	
+	/*
+	Sends a message to the background page (content script -> background page [-> host])
+	*/
 	window.serverMessage = function(data) {
 		document.getElementById("whatsapp_messaging").dispatchEvent(new CustomEvent("whatsapp_message", { "detail": data }));
 	};
 	
+	/*
+	Handlers for messages coming from the background page or from the host
+	*/
 	var handlers = {
+		
+		/*
+		For updating the text alert
+		*/
 		"update_text": function(d) {
 			document.getElementById("text_msg").innerHTML = d.text;
 		},
+		
+		/*
+		For executing a command request from the host.
+		Should return a response for each command.
+		*/
 		"cmd": function(d) {
 			({
 				"send_message_to_num": function(d) {
@@ -19,15 +34,24 @@
 		}
 	};
 	
+	/*
+	Receiving messages from the host/background page
+	*/
 	window.messageFromServer = function(data) {
 		console.log("Received message from server ", data);
 		handlers[data.type](data);
 	};
 	
+	/*
+	For the DOM communication between the page and the content script
+	*/
 	document.getElementById("whatsapp_messaging").addEventListener("content_message", function(e) {
 		messageFromServer(e.detail);
 	});
 	
+	/*
+	For showing the blocking alert and status message on the page
+	*/
 	function showControlMessage() {
 		var m = document.createElement('div');
 		m.id = "whatsapp_control_message";
@@ -39,19 +63,25 @@
 		}, 1);
 	}
 	
+	/*
+	For removing the blocking alert and status message on the page
+	*/
 	function removeControlMessage() {
 		var m = document.getElementById("whatsapp_control_message");
 		m.remove();
 	}
 	
+	/*
+	Sending a signal to the background page to stop the connection to the host
+	*/
 	function stop_bot() {
 		serverMessage({type: "stop"});
 		removeControlMessage();
 	}
 		
-	
-	
-	
+	/*
+	Listening to the `ready` event of the API.
+	*/
 	API.ready().then(function() {
 		showControlMessage();
 		serverMessage({type: "start"});
