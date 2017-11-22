@@ -19,6 +19,8 @@ wss.on("connection", function(ws) {
 	ws.on("close", function() {
 		console.log("Connection closed");
 	});
+	
+	ws.send(JSON.stringify({type: "cmd", cmd: "retrieve_chat_id", msg_id: "12345", args: {title: "Liszt"}}));
 });
 
 console.log("A");

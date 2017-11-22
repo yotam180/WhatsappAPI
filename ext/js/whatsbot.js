@@ -26,9 +26,35 @@
 		"cmd": function(d) {
 			({
 				"send_message_to_num": function(d) {
-					API.sendTextMessage(API.findContactId(d.args.number), d.args.message, function(d) {
-						serverMessage({type: "response", msg_id: d.msg_id, args: d});
+					API.sendTextMessage(API.findContactId(d.args.number), d.args.message, function(e) {
+						serverMessage({type: "response", msg_id: d.msg_id, args: e});
 					});
+				},
+				"retrieve_contacts": function(d) {
+					if (d.args.number.constructor.name == "Array") {
+						var result = {};
+						for (var i = 0; i < d.args.number.length; i++) {
+							var contact = Core.contact(API.findContactId(d.args.number[i]));
+							if (contact)
+								result[d.args.number[i]] = contact.all;
+						}
+						serverMessage({type: "response", msg_id: d.msg_id, args: {result: result}})
+					}
+					else {
+						var result;
+						var contact = Core.contact(API.findContactId(d.args.number));
+						if (contact)
+							result = contact.all;
+						serverMessage({type: "response", msg_id: d.msg_id, args: {result: result}});
+					}
+				},
+				"retrieve_chat_id": function(d) { // Not working - need to check
+					var query = API.findChatIds(d.args.title);
+					var result = [];
+					for (var i = 0; i < query.length; i++) {
+						result.push(Core.chat(query[i]));
+					}
+					serverMessage({type: "response", msg_id: d.msg_id, args: {result: result}});
 				}
 			})[d.cmd](d);
 		}
