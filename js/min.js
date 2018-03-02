@@ -11,6 +11,137 @@
 })();
 
 /*
+API Listener - listens for new events (via messages) and handles them.
+*/
+var Listener = function() {
+	
+	var self = this;
+	
+	this.ExternalHandlers = {
+		
+		/*
+		Parameters:
+			1. The user that joined
+			2. The user that added them (undefined if they used a link? Should be checked)
+			3. The chat the user was added to
+		*/
+		USER_JOIN_GROUP: [],
+		
+		/*
+		Parameters:
+			1. The user that was removed
+			2. The user that removed them (undefined if they used a link? Should be checked)
+			3. The chat the user was removed from
+		*/
+		USER_LEAVE_GROUP: [],
+		
+		/*
+		Parameters:
+			1. The group ID
+			2. The user that changed the title
+			3. The new title
+			4. The subject type (should be 'subject')
+		*/
+		GROUP_SUBJECT_CHANGE: [],
+		
+		/*
+		Parameters:
+			1. Sender of the message
+			2. Chat the message was sent at
+			3. Parsed Msg object
+		*/
+		MESSAGE_RECEIVED: []
+	};
+	
+	/*
+	Handlers for different message types
+	*/
+	var handlers = [
+		/*
+		User join / leave group.
+		*/
+		{
+			predicate: msg => msg.__x_isNotification && msg.__x_eventType == "i" && msg.__x_type == "gp2",
+			handler: function(msg) {
+				var is_join = Core.chat(msg.chat.__x_id).isGroup && !!Core.find(Core.group(msg.chat.__x_id).participants, x => msg.recipients && x.__x_id == msg.recipients[0]); // If anyone has a better way to implement this one, please help!
+				var object = msg.__x_recipients[0];
+				var subject = msg.__x_sender;
+				var chat = msg.chat.__x_id;
+				
+				if (is_join) {
+					self.ExternalHandlers.USER_JOIN_GROUP.forEach(x => x(object, subject, chat));
+				}
+				else {
+					self.ExternalHandlers.USER_LEAVE_GROUP.forEach(x => x(object, subject, chat));
+				}
+			}
+		},
+		/*
+		Group subject change.
+		*/
+		{
+			predicate: msg => msg.__x_isNotification && msg.__x_eventType == "n",
+			handler: function(msg) {
+				var chat = msg.__x_to;
+				var changer = msg.__x_sender;
+				var new_title = msg.__x_body;
+				var subtype = msg.__x_subtype;
+				self.ExternalHandlers.GROUP_SUBJECT_CHANGE.forEach(x => x(chat, changer, new_title, subtype));
+			}
+		},
+		/*
+		Message received
+		*/
+		{
+			predicate: msg => msg.__x_isUserCreatedType && !msg.__x_isNotification && !msg.__x_isSentByMe,
+			handler: function(msg) {
+				var sender = msg.__x_sender;
+				var chat = msg.__x_from;
+				self.ExternalHandlers.MESSAGE_RECEIVED.forEach(x => x(sender, chat, msg));
+			}
+		}
+	];
+	
+	/*
+	Handles a new incoming message
+	*/
+	var handle_msg = function(msg) {
+		for (var i = 0; i < handlers.length; i++) {
+			if (handlers[i].predicate(msg)) {
+				handlers[i].handler(msg);
+				console.log("Firing handler " + i);
+				return;
+			}
+		}
+		console.log("No suitable handlers were found for ", msg);
+	};
+	
+	/*
+	Goes through messages and filters new ones out. Then calls handle_msg on the newly created ones.
+	*/
+	var check_update = function() {
+		Store.Msg.models.forEach(model => {
+			if (model.__x_isNewMsg) {
+				model.__x_isNewMsg = false;
+				handle_msg(model);
+			}
+		});
+	};
+	
+	/*
+	Clears previously created listeners and starts a new one.
+	*/
+	this.listen = function() {
+		if (window.API_LISTENER_TOKEN) {
+			clearInterval(window.API_LISTENER_TOKEN);
+		}
+		
+		window.API_LISTENER_TOKEN = setInterval(check_update, 10);
+	};
+	
+};
+
+/*
 The core scripts of the API. Currently is public through `window` but will be hidden in production mode.
 */
 window.Core = {
@@ -113,12 +244,18 @@ window.Core = {
 	
 	callback: function(cid, obj) {
 		console.log("Callback", cid, obj);
-	}
+	},
 	
 };
 
 window.on_load = function() {
-	// Here we can do everything we want with Store
+	
+	var listener = new Listener();
+	listener.listen();
+
+	listener.ExternalHandlers.MESSAGE_RECEIVED.push(function(sender, chat, msg) {
+		console.log(sender, chat, msg);
+	});
 }
 
 COMMANDS = {
