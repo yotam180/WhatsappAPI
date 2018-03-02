@@ -230,8 +230,8 @@ window.Core = {
 		return m;
 	},
 	
-	callback: function(cid, obj) {
-		console.log("Callback", cid, obj);
+	callback: function(cid, mid, obj) {
+		serverMessage({type: "callback", mid: mid, payload: obj});
 	},
 	
 };
@@ -313,7 +313,7 @@ window.COMMANDS = {
 		
 		let callback_id = Math.round(Math.random() * 1e17);
 		var res = group.participants.addParticipant(user).then(function() {
-			Core.callback(callback_id, {"status": "success"});
+			Core.callback(callback_id, args.mid, {"status": "success"});
 		});
 		
 		if (res["_value"]) {
@@ -343,7 +343,7 @@ window.COMMANDS = {
 		
 		let callback_id = Math.round(Math.random() * 1e17);
 		var res = chat.sendMessage(body).then(function(e) {
-			Core.callback(callback_id, {"status": "success"});
+			Core.callback(callback_id, args.mid, {"status": "success"});
 		});
 		
 		if (res["_value"]) {
@@ -371,7 +371,7 @@ window.COMMANDS = {
 		if (data.hasOwnProperty("type")) {
 			result = COMMANDS[data.type](data);
 			if (result) {
-				serverMessage(result);
+				serverMessage({type: "response", mid: data.mid, payload: result});
 			}
 		}
 	};
@@ -416,11 +416,11 @@ window.COMMANDS = {
 	
 	window.on_load = function() {
 		
-		var listener = new Listener();
+		window.listener = new Listener();
 		listener.listen();
 
 		listener.ExternalHandlers.MESSAGE_RECEIVED.push(function(sender, chat, msg) {
-			console.log(sender, chat, msg);
+			serverMessage({type: "event", payload: {type: "message_received", sender: sender, chat: chat}});
 		});
 		
 		showControlMessage();
