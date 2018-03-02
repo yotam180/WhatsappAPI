@@ -10,7 +10,8 @@ a = WhatsBot.WhatsappBot(onMessage, onConnected)
 a.start()
 
 raw_input()
-a.send_message("972547885798@c.us", "Test message from Python")
+n = a.send_message("972547885798@c.us", "Test message from Python")
+print "Sent message"
 raw_input()
 
 a.stop()
