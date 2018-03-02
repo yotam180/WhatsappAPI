@@ -63,12 +63,26 @@ var handlers = {
 		// Initializing a new websocket connection
 		ws = new WebSocket("ws://localhost:8054/");
 		
-		// Listening to incoming messages from the host
-		ws.onmessage = function(d) {
-			var m = JSON.parse(d.data);
+		function onmsg(m) {
 			if (bot_working && ws) {
 				clientMessage(m);
 			}
+		}
+		
+		// Listening to incoming messages from the host
+		ws.onmessage = function(d) {
+			if (d.data.constructor.name == "Blob") {
+				var reader = new FileReader();
+				reader.onload = function() {
+					onmsg(JSON.parse(reader.result));
+				}
+				reader.readAsText(d.data);
+			}
+			else {
+				var m = JSON.parse(d.data);
+				onmsg(m);
+			}
+			
 		};
 		
 		// When the connection is opened, sending more info to the webpage

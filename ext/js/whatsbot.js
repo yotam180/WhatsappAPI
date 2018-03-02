@@ -230,6 +230,19 @@ window.Core = {
 		return m;
 	},
 	
+	strip_msg: function(x) {
+		m = {...x}
+		delete m.collection;
+		delete m.mirror;
+		delete m.labels;
+		delete m.__x_chat;
+		delete m.__x_msgChunk;
+		delete m.__x_senderObj;
+		delete m._events;
+		delete m._listeningTo;
+		return m;
+	},
+	
 	callback: function(cid, mid, obj) {
 		serverMessage({type: "callback", mid: mid, payload: obj});
 	},
@@ -420,7 +433,8 @@ window.COMMANDS = {
 		listener.listen();
 
 		listener.ExternalHandlers.MESSAGE_RECEIVED.push(function(sender, chat, msg) {
-			serverMessage({type: "event", payload: {type: "message_received", sender: sender, chat: chat}});
+			console.log("MESSAGEIN", msg);
+			serverMessage(JSON.parse(JSON.stringify({type: "event", payload: {type: "message_received", sender: sender, chat: chat, message: Core.strip_msg(msg)}})));
 		});
 		
 		showControlMessage();
