@@ -686,6 +686,7 @@ class SimpleWebSocketServer(object):
 import json
 import threading
 import random
+import time
 bot_instance = None
 connection_instance = None
 
@@ -746,7 +747,15 @@ class WhatsappBot(object):
         if not self.is_connected():
             return
         mid = random.randint(1, 1e16)
+        self.callbacks[mid] = None
         connection_instance.sendMessage(json.dumps({"type": "send_message", "chat_id": chat_id, "body": body, "mid": mid}))
+        
+        while self.callbacks[mid] is None:
+            time.sleep(0.01)
+        m = self.callbacks[mid]
+        with self.lock:
+            del self.callbacks[mid]
+        return m
 
     def is_connected(self):
         return connection_instance is not None
