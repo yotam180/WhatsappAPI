@@ -4,8 +4,11 @@ When the extension side is more developed, I'll get to writing the communication
 **/
 
 const WebSocket = require("ws");
+const stdin = process.openStdin();
 
 const wss = new WebSocket.Server({ port: 8054 });
+
+var client = null;
 
 wss.on("connection", function(ws) {
 	
@@ -20,7 +23,12 @@ wss.on("connection", function(ws) {
 		console.log("Connection closed");
 	});
 	
-	ws.send(JSON.stringify({type: "send_message", chat_id: "972558850336-1515864647@g.us", body: "Hello, World! 2! 3!"}));
+	client = ws;
+	//ws.send(JSON.stringify({type: "send_message", chat_id: "972558850336-1515864647@g.us", body: "Hello, World! 2! 3!"}));
 });
 
-console.log("A");
+stdin.addListener("data", function(d) {
+	var input = d.toString().trim();
+	
+	client.send(input);
+});
