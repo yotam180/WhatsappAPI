@@ -66,7 +66,7 @@ var handlers = {
 		// Listening to incoming messages from the host
 		ws.onmessage = function(d) {
 			var m = JSON.parse(d.data);
-			if (bot_working && ws && m.type == "cmd") {
+			if (bot_working && ws) {
 				clientMessage(m);
 			}
 		};
@@ -105,7 +105,21 @@ var handlers = {
 	*/
 	"response": function(msg) {
 		ws.send(JSON.stringify(msg));
-	}
+	},
+	
+	/*
+	Passing a callback to a command from the webpage to the host.
+	*/
+	"callback": function(msg) {
+		ws.send(JSON.stringify(msg));
+	},
+	
+	/*
+	Passing a message to a command from the webpage to the host.
+	*/
+	"event": function(msg) {
+		ws.send(JSON.stringify(msg));
+	},
 }
 
 /*
