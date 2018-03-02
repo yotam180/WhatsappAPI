@@ -645,6 +645,7 @@ class SimpleWebSocketServer(object):
 
       for ready in rList:
          if ready == self.serversocket:
+            sock = None
             try:
                sock, address = self.serversocket.accept()
                newsock = self._decorateSocket(sock)
@@ -682,56 +683,70 @@ class SimpleWebSocketServer(object):
       while True:
          self.serveonce()
 
-class SimpleSSLWebSocketServer(SimpleWebSocketServer):
-
-   def __init__(self, host, port, websocketclass, certfile,
-                keyfile, version = ssl.PROTOCOL_TLSv1, selectInterval = 0.1):
-
-      SimpleWebSocketServer.__init__(self, host, port,
-                                        websocketclass, selectInterval)
-
-      self.context = ssl.SSLContext(version)
-      self.context.load_cert_chain(certfile, keyfile)
-
-   def close(self):
-      super(SimpleSSLWebSocketServer, self).close()
-
-   def _decorateSocket(self, sock):
-      sslsock = self.context.wrap_socket(sock, server_side=True)
-      return sslsock
-
-   def _constructWebSocket(self, sock, address):
-      ws = self.websocketclass(self, sock, address)
-      ws.usingssl = True
-      return ws
-
-   def serveforever(self):
-      super(SimpleSSLWebSocketServer, self).serveforever()
-
+import json
+import threading
+import random
+bot_instance = None
+connection_instance = None
 
 
 class SimpleWebsocketHandler(WebSocket):
     def handleMessage(self):
-        print("Message in")
-        print(self.data)
+        global bot_instance
 
+        msgObj = json.loads(self.data)
+
+        if msgObj["type"] == "event":
+            if bot_instance.onEvent:
+                bot_instance.onEvent(bot_instance, msgObj["payload"])
+        elif msgObj["type"] == "callback":
+                bot_instance.handleCallback(msgObj)
+        else:
+            print(msgObj)
+    
     def handleConnected(self):
-        print("Connected")
-        print(self.address)
+        global bot_instance, connection_instance
+        connection_instance = self
+        if bot_instance.onConnected:
+            bot_instance.onConnected(bot_instance, self.address)
+        
 
     def handleClose(self):
-        print("Closed")
-        print(self.address)
+        global bot_instance, connection_instance
+        connection_instance = None
+        if bot_instance.onClosed:
+            bot_instance.onClosed(bot_instance, self.address)
 
 class WhatsappBot(object):
 
-    def __init__(self, onEvent):
+    def __init__(self, onEvent = None, onConnected = None, onClosed = None):
+        global bot_instance
+        bot_instance = self
         self.server = SimpleWebSocketServer('localhost', 8054, SimpleWebsocketHandler)
         self.onEvent = onEvent
+        self.onConnected = onConnected
+        self.onClosed = onClosed
+        self.lock = threading.Lock()
+        self.callbacks = {}
 
     def start(self):
-        self.server.serveforever()
+        self.worker = threading.Thread(target=self.server.serveforever)
+        self.worker.start()
 
+    def stop(self):
+        try:
+            self.server.close()
+        except:
+            pass
 
-a = WhatsappBot(None)
-a.start()
+    def handleCallback(self, cb):
+        self.callbacks[cb["mid"]] = cb["payload"]
+
+    def send_message(self, chat_id, body):
+        if not self.is_connected():
+            return
+        mid = random.randint(1, 1e16)
+        connection_instance.sendMessage(json.dumps({"type": "send_message", "chat_id": chat_id, "body": body, "mid": mid}))
+
+    def is_connected(self):
+        return connection_instance is not None

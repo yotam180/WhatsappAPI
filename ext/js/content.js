@@ -30,15 +30,9 @@
 		}
 	});
 	
-	// Loading the API
-	var api = document.createElement("script");
-	api.onload = function() {
-		// Loading the WhatsBot script
-		var el = document.createElement("script");
-		el.src = chrome.extension.getURL("js/whatsbot.js");
-		(document.head || document.documentElement).appendChild(el);
-	};
-	api.src = chrome.extension.getURL("js/api.min.js");
-	(document.head || document.documentElement).appendChild(api);
+	// Loading the WhatsBot script
+	var el = document.createElement("script");
+	el.src = chrome.extension.getURL("js/whatsbot.js");
+	(document.head || document.documentElement).appendChild(el);
 		
 })();
