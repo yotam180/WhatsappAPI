@@ -197,5 +197,35 @@ COMMANDS = {
 			return {"status": "undeterminate", "data": res._value.message};
 		}
 		return {"status": "pending", "callback": callback_id};
+	},
+	
+	/*
+	Sends a text message in a given chat.
+	*/
+	"send_message": function(args) {
+		if (!args["chat_id"]) {
+			return Core.error("No 'chat_id' parameter provided");
+		}
+		var chat_id = args.chat_id;
+		
+		if (!args["body"]) {
+			return Core.error("No 'body' parameter provided");
+		}
+		var body = args.body;
+		
+		var chat = Core.chat(chat_id);
+		if (chat == null) {
+			return Core.error("Could not find the chat ID");
+		}
+		
+		let callback_id = Math.round(Math.random() * 1e17);
+		var res = chat.sendMessage(body).then(function(e) {
+			Core.callback(callback_id, {"status": "success"});
+		});
+		
+		if (res["_value"]) {
+			return {"status": "undeterminate", "data": res._value.message};
+		}
+		return {"status": "pending", "callback": callback_id};
 	}
 }
