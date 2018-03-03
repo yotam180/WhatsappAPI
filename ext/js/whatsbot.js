@@ -354,7 +354,7 @@ window.COMMANDS = {
 			return Core.error("Could not find the chat ID");
 		}
 		
-		let callback_id = Math.round(Math.random() * 1e17);
+		let callback_id = args.mid;
 		var res = chat.sendMessage(body).then(function(e) {
 			Core.callback(callback_id, args.mid, {"status": "success"});
 		});
