@@ -551,6 +551,18 @@
 		},
 		
 		/*
+		Initializes a group (required to call before interacting with a group).
+		*/
+		initGroup(group_id, callback) {
+			var group = Core.group(group_id);
+			if (group == null) {
+				return API.Error.GROUP_NOT_FOUND;
+			}
+			
+			group.update().then(callback);
+		},
+		
+		/*
 		Minimizes a message object to a JSON convertable object for sending over network (smaller size than a huge Msg object)
 		Parameters:
 			msg_object - the message object to convert to JSON compatible type
