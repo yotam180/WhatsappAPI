@@ -15,7 +15,7 @@
 	
 	"background": {
 		"persistent": true,
-		"scripts": ["background.js"]
+		"scripts": ["js/jquery.js", "background.js"]
 	},
 	
 	"author": "Yotam Salmon",
@@ -29,6 +29,7 @@
 	],
 	
 	"web_accessible_resources": [
+		"js/jquery.js",
 		"js/api.js",
 		"js/whatsapp.js"
 	]

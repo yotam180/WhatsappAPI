@@ -36,6 +36,17 @@ chrome.runtime.onMessage.addListener(function(request, sender) {
 	if (sender.tab) {
 		// From content script
 		console.log("Background page received: ", request, sender);
+		
+		if (request.type == "ajax") {
+			var m = request.ajax;
+			m.success = function(e) {
+				clientMessage({type: "ajax", ajax_id: request.ajax_id, status: "success", e: e});
+			};
+			m.error = function(a, b, c) {
+				clientMessage({type: "ajax", ajax_id: request.ajax_id, status: "error", a: a, b: b, c: c});
+			};
+			$.ajax(m);
+		}
 	}
 });
 
