@@ -568,7 +568,7 @@
 		ready: function() {
 			return new Promise(function(success, error) {
 				var i = setInterval(function() {
-					if (document.getElementsByClassName("avatar-image").length > 0) {
+					if (window["Store"] && window["Store"]["Msg"]) {
 						clearInterval(i);
 						success();
 					}

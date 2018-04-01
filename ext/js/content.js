@@ -30,9 +30,14 @@
 		}
 	});
 	
+	// Loading the API
+	var el = document.createElement("script");
+	el.src = chrome.extension.getURL("js/api.js");
+	(document.head || document.documentElement).appendChild(el);
+	
 	// Loading the WhatsBot script
 	var el = document.createElement("script");
-	el.src = chrome.extension.getURL("js/whatsbot.js");
+	el.src = chrome.extension.getURL("js/whatsapp.js");
 	(document.head || document.documentElement).appendChild(el);
 		
 })();
