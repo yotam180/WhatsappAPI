@@ -13,14 +13,16 @@ Receiving messages from the host/background page
 window.messageFromServer = function(data) {
 	console.log("Received message from server ", data);
 	
-	if (window.ajaxes[data.ajax_id]) {
-		if (data.status == "success") {
-			window.ajaxes[data.ajax_id].success(data.e);
+	if (data.type == "ajax") {
+		if (window.ajaxes[data.ajax_id]) {
+			if (data.status == "success") {
+				window.ajaxes[data.ajax_id].success(data.e);
+			}
+			else {
+				window.ajaxes[data.ajax_id].error(data.a, data.b, data.c);
+			}
+			delete window.ajaxes[data.ajax_id];
 		}
-		else {
-			window.ajaxes[data.ajax_id].error(data.a, data.b, data.c);
-		}
-		delete window.ajaxes[data.ajax_id];
 	}
 };
 
