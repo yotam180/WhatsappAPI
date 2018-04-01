@@ -20,6 +20,7 @@ window.messageFromServer = function(data) {
 		else {
 			window.ajaxes[data.ajax_id].error(data.a, data.b, data.c);
 		}
+		delete window.ajaxes[data.ajax_id];
 	}
 };
 

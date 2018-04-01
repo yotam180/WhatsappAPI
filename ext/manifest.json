@@ -10,7 +10,8 @@
 	},
 	
 	"browser_action": {
-		"default_title": "WhatsAPP API extension"
+		"default_title": "WhatsAPP API extension",
+		"default_popup": "popup.html"
 	},
 	
 	"background": {
@@ -22,6 +23,7 @@
 	
 	"permissions": [
 		"activeTab",
+		"storage",
 		"webNavigation", 
 		"webRequest",
 		"tabs",
