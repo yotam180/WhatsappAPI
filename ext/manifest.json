@@ -2,15 +2,18 @@
 	
 	"manifest_version": 2,
 	"name": "WhatsApp API",
-	"version": "0.0.1",
+	"version": "1.0.1",
 	
 	"description": "An extension to integrate Javascript code into WhatsApp Web using a simple API",
 	"icons": {
-		
+		"16": "logo/16.png",
+		"48": "logo/48.png",
+		"128": "logo/128.png"
 	},
 	
 	"browser_action": {
-		"default_title": "WhatsAPP API extension"
+		"default_title": "WhatsAPP API extension",
+		"default_popup": "html/popup.html"
 	},
 	
 	"background": {
