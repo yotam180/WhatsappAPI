@@ -1,4 +1,4 @@
-(function() {
+﻿(function() {
 	
 	/*
 	The core scripts of the API. Currently is public through `window` but will be hidden in production mode.
@@ -512,42 +512,54 @@
 		},
 		
 		/*
-		    Send the other side "<you> is typing..."
+			Send the other side "<you> is typing..."
 			chat_id - the chat id
 		*/
 		sendTyping: function(chat_id) {
-            var chat = Core.chat(chat_id);
-            if (chat == null) {
-                return API.Error.CHAT_NOT_FOUND;
-            }
-            
-            chat.markComposing();
+			var chat = Core.chat(chat_id);
+			if (chat == null) {
+				return API.Error.CHAT_NOT_FOUND;
+			}
+			
+			chat.markComposing();
 		},
 		
 		/*
-		    Send the other side "<you> is recording audio..."
+			Send the other side "<you> is recording audio..."
 			chat_id - the chat id
 		*/
 		sendRecording: function(chat_id) {
-            var chat = Core.chat(chat_id);
-            if (chat == null) {
-                return API.Error.CHAT_NOT_FOUND;
-            }
-            
-            chat.markRecording();
+			var chat = Core.chat(chat_id);
+			if (chat == null) {
+				return API.Error.CHAT_NOT_FOUND;
+			}
+			
+			chat.markRecording();
 		},
 		
 		/*
-		    Hides the "<you> is recording audio..." to the other side
+			Hides the "<you> is recording audio..." to the other side
 			chat_id - the chat id
 		*/
 		sendStopRecording: function(chat_id) {
-            var chat = Core.chat(chat_id);
-            if (chat == null) {
-                return API.Error.CHAT_NOT_FOUND;
-            }
-            
-            chat.markPaused();
+			var chat = Core.chat(chat_id);
+			if (chat == null) {
+				return API.Error.CHAT_NOT_FOUND;
+			}
+			
+			chat.markPaused();
+		},
+		
+		/*
+		Initializes a group (required to call before interacting with a group).
+		*/
+		initGroup(group_id, callback) {
+			var group = Core.group(group_id);
+			if (group == null) {
+				return API.Error.GROUP_NOT_FOUND;
+			}
+			
+			group.update().then(callback);
 		},
 		
 		/*
@@ -568,7 +580,7 @@
 		ready: function() {
 			return new Promise(function(success, error) {
 				var i = setInterval(function() {
-					if (window["Store"] && window["Store"]["Msg"]) {
+					if (document.getElementsByClassName("avatar-image").length > 0) {
 						clearInterval(i);
 						success();
 					}
