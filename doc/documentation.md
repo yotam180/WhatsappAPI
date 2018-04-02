@@ -61,3 +61,36 @@ Given and ID of a Msg object, returns the WhatsApp native object of the Msg. A M
 
 <hr/>
 
+## The `Listener` class
+
+Listeners listen for events, and fire callbacks when events occur. Deductively, so does the Listener class of the WhatsApp API. The main listener instance of the API
+is a member of the API class and is accessible as `API.listener`.
+
+### Subscribing to an event
+
+Event handlers can be attached to the listener object:
+
+```
+API.listener.ExternalHandlers.<HANDLER_NAME>.push(<EVENT_HANDLER>);
+```
+
+Where the EVENT_HANDLER is a function, and HANDLER_NAME will be described below.
+
+### Unsubscribing from an event
+
+Event handlers are managed using simple arrays. Removing the first attached listener, for example, for an event:
+
+```
+API.listener.ExternalHandlers.<HANDLER_NAME>.shift();
+```
+
+### `USER_JOIN_GROUP` event
+
+Fired when a user joins a group. All subscribed event handlers are called with the parameters.
+
+#### Parameters
+
+1. The user that joined (contact object)
+2. The user that added the user (contact object)
+3. The chat the user was added to (id - string)
+
