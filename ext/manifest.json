@@ -10,7 +10,7 @@
 	},
 	
 	"browser_action": {
-		"default_title": "WhatsAPP API extension",
+		"default_title": "WhatsAPP API extension"
 	},
 	
 	"background": {
