@@ -122,7 +122,14 @@
 				2. Chat the message was sent at
 				3. Parsed Msg object
 			*/
-			MESSAGE_RECEIVED: []
+			MESSAGE_RECEIVED: [],
+			
+			/*
+			Parameters:
+				1. The chat the message was sent to
+				2. Parsed Msg object
+			*/
+			MESSAGE_SENT: []
 		};
 		
 		/*
@@ -135,7 +142,8 @@
 			{
 				predicate: msg => msg.__x_isNotification && msg.__x_eventType == "i" && msg.__x_type == "gp2",
 				handler: function(msg) {
-					var is_join = Core.chat(msg.chat.__x_id).isGroup && !!Core.find(Core.group(msg.chat.__x_id).participants, x => msg.recipients && x.__x_id == msg.recipients[0]); // If anyone has a better way to implement this one, please help!
+					var is_join = msg.__x_subtype == "add" || msg.__x_subtype == "invite";
+					var is_leave = msg.__x_subtype == "leave" || msg.__x_subtype == "remove";
 					var object = msg.__x_recipients[0];
 					var subject = msg.__x_sender;
 					var chat = msg.chat.__x_id;
@@ -143,7 +151,7 @@
 					if (is_join) {
 						API.listener.ExternalHandlers.USER_JOIN_GROUP.forEach(x => x(object, subject, chat));
 					}
-					else {
+					else if (is_leave) {
 						API.listener.ExternalHandlers.USER_LEAVE_GROUP.forEach(x => x(object, subject, chat));
 					}
 				}
@@ -172,6 +180,16 @@
 					var message = msg.__x_id._serialized;
 					console.log(msg);
 					API.listener.ExternalHandlers.MESSAGE_RECEIVED.forEach(x => x(sender, chat, API.parseMsgObject(msg)));
+				}
+			},
+			/*
+			Message sent
+			*/
+			{
+				predicate: msg => msg.__x_isUserCreatedType && !msg.__x_isNotification && msg.__x_isSentByMe,
+				handler: function(msg) {
+					var to = msg.__x_to;
+					API.listener.ExternalHandlers.MESSAGE_SENT.forEach(x => x(to, API.parseMsgObject(msg), msg));
 				}
 			}
 		];
@@ -503,12 +521,17 @@
 				}
 			});
 			
-			if (!!toSend.length) {
+			if (!toSend.length) {
 				Core.error(API.Error.USER_NOT_FOUND, callback);
 				return;
 			}
 			
-			chat.sendContactList(toSend).then(callback);
+			if (toSend.length == 1) {
+				chat.sendContact(toSend[0]);
+			}
+			else {
+				chat.sendContactList(toSend);
+			}
 		},
 		
 		/*
