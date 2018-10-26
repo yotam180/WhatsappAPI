@@ -11,5 +11,14 @@ TL;DR: Don't be an a$$hole. WhatsApp is not a product for commercial use. Bots a
 
 **You can download the WhatsApp API as a Chrome Extension [here](https://chrome.google.com/webstore/detail/whatsapp-api/klddgngdkdljhlhmjdllbdechlnmacik).**
 
+## Chrome Extension Manual Instalation
+
+Since the Chrome Extension isn't listed on the Webstore, you can manually install the extension. Here is how:
+1. Clone or download this repository.
+1. Go to chrome://extensions
+1. Tick Developer Mode (turn it on)
+1. Load an unpacked extension
+1. Select the /ext/ folder of this repository
+
 When the WhatsApp web
 window loads, the extension will add the API to the page for simple use. Then you can write scripts on WhatsApp web from the Javascript console or using a user script extension (Such as [TamperMonkey](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo))
