@@ -2,7 +2,7 @@
 	
 	"manifest_version": 2,
 	"name": "WhatsApp API",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	
 	"description": "An extension to integrate Javascript code into WhatsApp Web using a simple API",
 	"icons": {
