@@ -10,8 +10,11 @@
 		*/
 		group: function(_id) {
 			let result = null;
+			if (!(_id && _id._serialized))
+				return result;
+
 			Store.GroupMetadata.models.forEach(x => {
-				if (x.hasOwnProperty("__x_id") && x.__x_id == _id) {
+				if (x.hasOwnProperty("__x_id") && x.__x_id.hasOwnProperty("_serialized") && x.__x_id._serialized == _id._serialized) {
 					result = x;
 				}
 			});
@@ -23,8 +26,11 @@
 		*/
 		contact: function(_id) {
 			let result = null;
+			if (!(_id && _id._serialized))
+				return result;
+
 			Store.Contact.models.forEach(x => {
-				if (x.hasOwnProperty("__x_id") && x.__x_id == _id) {
+				if (x.hasOwnProperty("__x_id") && x.__x_id.hasOwnProperty("_serialized") && x.__x_id._serialized == _id._serialized) {
 					result = x;
 				}
 			});
@@ -36,8 +42,11 @@
 		*/
 		chat: function(_id) {
 			let result = null;
+			if (!(_id && _id._serialized))
+				return result;
+
 			Store.Chat.models.forEach(x => {
-				if (x.hasOwnProperty("__x_id") && x.__x_id == _id) {
+				if (x.hasOwnProperty("__x_id") && x.__x_id.hasOwnProperty("_serialized") && x.__x_id._serialized == _id._serialized) {
 					result = x;
 				}
 			});
@@ -49,8 +58,11 @@
 		*/
 		msg: function(_id) {
 			let result = null;
+			if (!(_id && _id._serialized))
+				return result;
+			
 			Store.Msg.models.forEach(x => {
-				if (x.hasOwnProperty("__x_id") && x.__x_id._serialized == _id) {
+				if (x.hasOwnProperty("__x_id") && x.__x_id.hasOwnProperty("_serialized") && x.__x_id._serialized == _id._serialized) {
 					result = x;
 				}
 			});
