@@ -10,8 +10,11 @@
 		*/
 		group: function(_id) {
 			let result = null;
+			if (!(_id && _id._serialized))
+				return result;
+
 			Store.GroupMetadata.models.forEach(x => {
-				if (x.hasOwnProperty("__x_id") && x.__x_id == _id) {
+				if (x.hasOwnProperty("__x_id") && x.__x_id.hasOwnProperty("_serialized") && x.__x_id._serialized == _id._serialized) {
 					result = x;
 				}
 			});
@@ -23,8 +26,11 @@
 		*/
 		contact: function(_id) {
 			let result = null;
+			if (!(_id && _id._serialized))
+				return result;
+
 			Store.Contact.models.forEach(x => {
-				if (x.hasOwnProperty("__x_id") && x.__x_id == _id) {
+				if (x.hasOwnProperty("__x_id") && x.__x_id.hasOwnProperty("_serialized") && x.__x_id._serialized == _id._serialized) {
 					result = x;
 				}
 			});
@@ -36,8 +42,11 @@
 		*/
 		chat: function(_id) {
 			let result = null;
+			if (!(_id && _id._serialized))
+				return result;
+
 			Store.Chat.models.forEach(x => {
-				if (x.hasOwnProperty("__x_id") && x.__x_id == _id) {
+				if (x.hasOwnProperty("__x_id") && x.__x_id.hasOwnProperty("_serialized") && x.__x_id._serialized == _id._serialized) {
 					result = x;
 				}
 			});
@@ -49,8 +58,11 @@
 		*/
 		msg: function(_id) {
 			let result = null;
+			if (!(_id && _id._serialized))
+				return result;
+
 			Store.Msg.models.forEach(x => {
-				if (x.hasOwnProperty("__x_id") && x.__x_id._serialized == _id) {
+				if (x.hasOwnProperty("__x_id") && x.__x_id.hasOwnProperty("_serialized") && x.__x_id._serialized == _id._serialized) {
 					result = x;
 				}
 			});
@@ -93,7 +105,7 @@
 			
 			/*
 			Parameters:
-				1. The user that joined
+				1. The user(s) Object that joined
 				2. The user that added them (undefined if they used a link? Should be checked)
 				3. The chat the user was added to
 			*/
@@ -119,8 +131,9 @@
 			/*
 			Parameters:
 				1. Sender of the message
-				2. Chat the message was sent at
+				2. Chat message was received from
 				3. Parsed Msg object
+				4. Msg object
 			*/
 			MESSAGE_RECEIVED: [],
 			
@@ -128,6 +141,7 @@
 			Parameters:
 				1. The chat the message was sent to
 				2. Parsed Msg object
+				3. Msg object
 			*/
 			MESSAGE_SENT: []
 		};
@@ -140,13 +154,16 @@
 			User join / leave group.
 			*/
 			{
-				predicate: msg => msg.__x_isNotification && msg.__x_eventType == "i" && msg.__x_type == "gp2",
+				predicate: msg => msg.__x_isNotification && msg.__x_isGroupNotification && msg.__x_eventType == "i" && msg.__x_type == "gp2",
 				handler: function(msg) {
 					var is_join = msg.__x_subtype == "add" || msg.__x_subtype == "invite";
 					var is_leave = msg.__x_subtype == "leave" || msg.__x_subtype == "remove";
 					var object = msg.__x_recipients[0];
 					var subject = msg.__x_sender;
-					var chat = msg.chat.__x_id;
+					var chat = Core.chat(msg.__x_to);
+					console.log(msg);
+
+					msg.__fired_by_ext = true;
 					
 					if (is_join) {
 						API.listener.ExternalHandlers.USER_JOIN_GROUP.forEach(x => x(object, subject, chat));
@@ -179,7 +196,7 @@
 					var chat = msg.__x_from;
 					var message = msg.__x_id._serialized;
 					console.log(msg);
-					API.listener.ExternalHandlers.MESSAGE_RECEIVED.forEach(x => x(sender, chat, API.parseMsgObject(msg)));
+					API.listener.ExternalHandlers.MESSAGE_RECEIVED.forEach(x => x(sender, chat, API.parseMsgObject(msg), msg));
 				}
 			},
 			/*
@@ -214,8 +231,18 @@
 		var check_update = function() {
 			
 			if (window.Store) {
+
+				let isNewGroupNotification = function(m){
+					var ts = Math.round((new Date()).getTime() / 1000),
+						isObvious = !m.__fired_by_ext && m.__x_isNotification && m.__x_isGroupNotification,
+						ageT = 30 // in seconds
+					;
+					isObvious = (isObvious && ['add', 'remove', 'leave', 'invite'].indexOf(m.__x_subtype) !== -1);
+					isObvious = (isObvious && (ts - m.__x_t) < ageT );
+					return isObvious;
+				};
 				Store.Msg.models.forEach(model => {
-					if (model.__x_isNewMsg) {
+					if (model.__x_isNewMsg || isNewGroupNotification(model)) {
 						model.__x_isNewMsg = false;
 						handle_msg(model);
 					}
@@ -597,13 +624,15 @@
 			msg_object - the message object to convert to JSON compatible type
 		*/
 		parseMsgObject: function(msg_object) {
-			var m = msg_object.all;
-			if (msg_object["__x__quotedMsgObj"]) {
-				m.quotedMsg = API.parseMsgObject(Core.msg(msg_object.__x__quotedMsgObj.__x_id._serialized));
-			}
-			m.chat = m.chat.all;
-			delete m.msgChunk;
-			return m;
+			// var m = msg_object.all;
+			// if (msg_object["__x__quotedMsgObj"]) {
+			// 	m.quotedMsg = API.parseMsgObject(Core.msg(msg_object.__x__quotedMsgObj.__x_id._serialized));
+			// }
+			// m.chat = m.chat.all;
+			// delete m.msgChunk;
+			var m = msg_object;
+			var text_msg = (m.__x_text ? m.__x_text : "");
+			return text_msg;
 		},
 		
 		/*
